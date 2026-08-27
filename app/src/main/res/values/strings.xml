@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Atmo</string>
+    <string name="ola_usuario">Olá, Usuário</string>
+    <string name="icone_de_carteira">Icone de carteira</string>
+</resources>
