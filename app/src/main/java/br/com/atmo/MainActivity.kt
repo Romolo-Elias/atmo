@@ -17,6 +17,7 @@ import br.com.atmo.ui.theme.AtmoTheme
 import br.com.atmo.ui.theme.components.AtmoBottomBar
 import br.com.atmo.ui.theme.screens.AddExpenseScreen
 import br.com.atmo.ui.theme.screens.InsightsScreen
+import br.com.atmo.ui.theme.screens.ProfileScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
                         0 -> DashboardScreen(modifier = Modifier.padding(innerPadding))
                         1 -> InsightsScreen(modifier = Modifier.padding(innerPadding))
                         2 -> AddExpenseScreen(modifier = Modifier.padding(innerPadding))
+                        3 -> ProfileScreen(modifier = Modifier.padding(innerPadding))
                     }
                 }
             }

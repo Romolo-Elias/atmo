@@ -44,6 +44,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Spacer(modifier = Modifier.height(30.dp))
         Text(
             text = "Meu Perfil",
             color = MaterialTheme.colorScheme.onSurface,
@@ -51,14 +52,12 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             fontSize = 26.sp
         )
 
-        // Card de Informações do Usuário
         AtmoCard {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Avatar circular com ícone
                 Surface(
                     shape = CircleShape,
                     color = AtmoCyan.copy(alpha = 0.15f),
@@ -109,71 +108,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                 Column(horizontalAlignment = Alignment.End) {
                     Text(text = "CO₂ Poupado", color = AtmoTextSecondary, fontSize = 12.sp)
                     Text(text = "48.2 kg", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                }
-            }
-        }
-
-        AtmoCard {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    text = "CONFIGURAÇÕES",
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 11.sp
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = null,
-                            tint = AtmoCyan,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "Notificações e Alertas",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 14.sp
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = AtmoTextSecondary
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Security,
-                            contentDescription = null,
-                            tint = AtmoCyan,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "Privacidade e Dados",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 14.sp
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = AtmoTextSecondary
-                    )
                 }
             }
         }
