@@ -1,4 +1,4 @@
-package br.com.atmo.ui.theme.screens
+package br.com.atmo.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,10 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,13 +26,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import br.com.atmo.ui.theme.AtmoCyan
 import br.com.atmo.ui.theme.AtmoTextSecondary
 import br.com.atmo.ui.theme.AtmoTheme
 import br.com.atmo.ui.theme.components.AtmoCard
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
+fun ProfileScreen(modifier: Modifier,navController: NavController ,email: String?) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -52,7 +52,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             fontSize = 26.sp
         )
 
-        AtmoCard {
+        AtmoCard() {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -82,7 +82,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "usuario@faculdade.com",
+                        text = email?: "",
                         color = AtmoTextSecondary,
                         fontSize = 13.sp
                     )
@@ -118,6 +118,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun ProfileScreenPreview() {
     AtmoTheme {
-        ProfileScreen()
+        ProfileScreen(Modifier, rememberNavController(), "")
     }
 }

@@ -1,4 +1,4 @@
-package br.com.atmo.ui.theme.screens
+package br.com.atmo.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +30,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import br.com.atmo.navigation.Destination
 import br.com.atmo.ui.theme.AtmoCyan
 import br.com.atmo.ui.theme.AtmoSurface
 import br.com.atmo.ui.theme.AtmoTextSecondary
@@ -37,8 +40,7 @@ import br.com.atmo.ui.theme.AtmoTheme
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {},
-    onRegisterClick: () -> Unit = {},
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     var email by remember { mutableStateOf("") }
@@ -53,13 +55,10 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     text = "E-mail",
@@ -69,7 +68,7 @@ fun LoginScreen(
                 )
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { emailValue -> email = emailValue },
                     placeholder = { Text("seu@email.com", color = AtmoTextSecondary) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
@@ -94,7 +93,7 @@ fun LoginScreen(
                 )
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { passwordValue -> password = passwordValue },
                     placeholder = { Text("••••••••", color = AtmoTextSecondary) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
@@ -114,7 +113,9 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = onLoginClick,
+                onClick = {
+                    navController.navigate(Destination.DashboardScreen.createRoute(email))
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -132,7 +133,9 @@ fun LoginScreen(
             }
 
             TextButton(
-                onClick = onRegisterClick,
+                onClick = {
+                    navController.navigate(Destination.RegisterScreen.route)
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -149,6 +152,6 @@ fun LoginScreen(
 @Composable
 private fun LoginScreenPreview() {
     AtmoTheme {
-        LoginScreen()
+        LoginScreen(rememberNavController())
     }
 }

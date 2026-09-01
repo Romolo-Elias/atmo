@@ -57,18 +57,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Navegação do Jetpack Compose
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-
-    // Retrofit para consumo de API
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    // Room para salvar gastos offline (futuro)
-    implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-
-    //icones
+    //ícones
     implementation("androidx.compose.material:material-icons-extended")
 
+    //navigation
+    implementation(libs.androidx.navigation.compose)
 }

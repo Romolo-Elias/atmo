@@ -1,3 +1,5 @@
+package br.com.atmo.screens.DashboardScreen
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,16 +28,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import br.com.atmo.R
 import br.com.atmo.ui.theme.AtmoTheme
 import br.com.atmo.ui.theme.components.AtmoCard
 import br.com.atmo.ui.theme.components.CategoryEmissionItem
 import br.com.atmo.ui.theme.components.ExpenseItem
 
+
 @Composable
-fun DashboardScreen(modifier: Modifier = Modifier) {
+fun DashboardScreen(navController: NavHostController, email: String?, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
             .padding(16.dp)
@@ -176,6 +181,6 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun DashboardScreenPreview() {
     AtmoTheme {
-        DashboardScreen()
+        DashboardScreen(rememberNavController(), "usuario@email.com")
     }
 }

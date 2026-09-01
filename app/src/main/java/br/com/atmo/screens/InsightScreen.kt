@@ -1,4 +1,4 @@
-package br.com.atmo.ui.theme.screens
+package br.com.atmo.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

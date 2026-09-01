@@ -1,4 +1,4 @@
-package br.com.atmo.ui.theme.screens
+package br.com.atmo.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +30,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import br.com.atmo.navigation.Destination
 import br.com.atmo.ui.theme.AtmoCyan
 import br.com.atmo.ui.theme.AtmoSurface
 import br.com.atmo.ui.theme.AtmoTextSecondary
@@ -37,15 +40,12 @@ import br.com.atmo.ui.theme.AtmoTheme
 
 @Composable
 fun RegisterScreen(
-    onLoginClick: () -> Unit = {},
-    onRegisterClick: () -> Unit = {},
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
-
 
     Column(
         modifier = modifier
@@ -154,7 +154,9 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = onLoginClick,
+                onClick = {
+                    navController.navigate(Destination.DashboardScreen.createRoute(email))
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -172,7 +174,9 @@ fun RegisterScreen(
             }
 
             TextButton(
-                onClick = onRegisterClick,
+                onClick = {
+                    navController.navigate(Destination.LoginScreen.route)
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -189,6 +193,6 @@ fun RegisterScreen(
 @Composable
 private fun RegisterscreenPreview() {
     AtmoTheme {
-        RegisterScreen()
+        RegisterScreen(rememberNavController())
     }
 }
