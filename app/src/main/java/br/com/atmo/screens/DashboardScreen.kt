@@ -20,9 +20,13 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,14 +35,24 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.atmo.R
+import br.com.atmo.data.AtmoDatabase
+import br.com.atmo.repository.ExpenseRepository
 import br.com.atmo.ui.theme.AtmoTheme
 import br.com.atmo.ui.theme.components.AtmoCard
 import br.com.atmo.ui.theme.components.CategoryEmissionItem
 import br.com.atmo.ui.theme.components.ExpenseItem
 
-
 @Composable
 fun DashboardScreen(navController: NavHostController, email: String?, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val repository = remember { ExpenseRepository(AtmoDatabase.getInstance(context).expenseDao()) }
+    val expenses by repository.getAll().collectAsState(initial = emptyList())
+
+    val totalGasto = expenses.sumOf { it.value }
+    val totalCO2 = expenses.sumOf { it.carbonValue }
+    val emissoesPorCategoria = expenses.groupBy { it.category }
+        .mapValues { (_, lista) -> lista.sumOf { it.carbonValue } }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,9 +77,7 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AtmoCard(
-                modifier = Modifier.weight(1f)
-            ) {
+            AtmoCard(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "GASTOS",
                     color = MaterialTheme.colorScheme.secondary,
@@ -73,7 +85,7 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
                     fontSize = 11.sp
                 )
                 Text(
-                    text = "R$ 781,00",
+                    text = "R$ %.2f".format(totalGasto),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -102,7 +114,7 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "217.3 kg",
+                    text = "%.1f kg".format(totalCO2),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -114,33 +126,31 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
             text = "Emissões por categoria",
             color = MaterialTheme.colorScheme.secondary,
             fontWeight = FontWeight.Medium
-            )
-            CategoryEmissionItem(
-                title = "Transporte",
-                value = "0.05 kg",
-                progress = 0.2f,
-                icon = Icons.Default.DirectionsCar,
-            )
-
-            CategoryEmissionItem(
-                title = "Alimentação",
-                value = "43.0 kg",
-                progress = 0.8f,
-                icon = Icons.Default.ShoppingCart
-            )
-            CategoryEmissionItem(
-                title = "Casa",
-                value = "36.0 kg",
-                progress = 0.5f,
-                icon = Icons.Default.House
-            )
-
-            CategoryEmissionItem(
-                title = "Digital",
-                value = "60.0 kg",
-                progress = 1f,
-                icon = Icons.Default.Laptop
-            )
+        )
+        CategoryEmissionItem(
+            title = "Transporte",
+            value = "%.2f kg".format(emissoesPorCategoria["Transporte"] ?: 0.0),
+            progress = 0.2f,
+            icon = Icons.Default.DirectionsCar
+        )
+        CategoryEmissionItem(
+            title = "Alimentação",
+            value = "%.1f kg".format(emissoesPorCategoria["Alimentação"] ?: 0.0),
+            progress = 0.8f,
+            icon = Icons.Default.ShoppingCart
+        )
+        CategoryEmissionItem(
+            title = "Casa",
+            value = "%.1f kg".format(emissoesPorCategoria["Casa"] ?: 0.0),
+            progress = 0.5f,
+            icon = Icons.Default.House
+        )
+        CategoryEmissionItem(
+            title = "Digital",
+            value = "%.1f kg".format(emissoesPorCategoria["Digital"] ?: 0.0),
+            progress = 1f,
+            icon = Icons.Default.Laptop
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -151,29 +161,15 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        ExpenseItem(
-            title = "Uber para o centro",
-            category = "Transporte",
-            value = "R$ 85,00",
-            carbonValue = "42.5 kg",
-            icon = Icons.Default.DirectionsCar
-        )
-
-        ExpenseItem(
-            title = "Supermercado",
-            category = "Alimentação",
-            value = "R$ 450,00",
-            carbonValue = "135.0 kg",
-            icon = Icons.Default.ShoppingCart
-        )
-
-        ExpenseItem(
-            title = "Conta de Luz",
-            category = "Casa",
-            value = "R$ 180,00",
-            carbonValue = "36.0 kg",
-            icon = Icons.Default.Laptop
-        )
+        expenses.forEach { expense ->
+            ExpenseItem(
+                title = expense.title,
+                category = expense.category,
+                value = "R$ %.2f".format(expense.value),
+                carbonValue = "%.1f kg".format(expense.carbonValue),
+                icon = Icons.Default.DirectionsCar
+            )
+        }
     }
 }
 

@@ -21,26 +21,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import br.com.atmo.data.AtmoDatabase
+import br.com.atmo.model.Expense
+import br.com.atmo.repository.ExpenseRepository
 import br.com.atmo.ui.theme.AtmoCyan
 import br.com.atmo.ui.theme.AtmoSurface
 import br.com.atmo.ui.theme.AtmoTextSecondary
 import br.com.atmo.ui.theme.AtmoTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddExpenseScreen(
-    modifier: Modifier = Modifier,
-    onSaveClick: () -> Unit = {}
+    navController: NavController,
+    modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
-    var carbonValue by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val repository = remember { ExpenseRepository(AtmoDatabase.getInstance(context).expenseDao()) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = modifier
@@ -101,7 +112,7 @@ fun AddExpenseScreen(
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
-                placeholder = { Text("Ex: 45,00", color = AtmoTextSecondary) },
+                placeholder = { Text("Ex: 45.00", color = AtmoTextSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -141,35 +152,23 @@ fun AddExpenseScreen(
             )
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = "Impacto de Carbono Estimado (kg)",
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp
-            )
-            OutlinedTextField(
-                value = carbonValue,
-                onValueChange = { carbonValue = it },
-                placeholder = { Text("Ex: 12.5 kg", color = AtmoTextSecondary) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AtmoCyan,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedContainerColor = AtmoSurface,
-                    unfocusedContainerColor = AtmoSurface,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-                ),
-                singleLine = true
-            )
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onSaveClick,
+            onClick = {
+                val valorConvertido = amount.replace(",", ".").toDoubleOrNull() ?: 0.0
+                scope.launch {
+                    repository.insert(
+                        Expense(
+                            title = title,
+                            category = category,
+                            value = valorConvertido,
+                            carbonValue = 0.0
+                        )
+                    )
+                    navController.popBackStack()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -192,6 +191,6 @@ fun AddExpenseScreen(
 @Composable
 private fun AddExpenseScreenPreview() {
     AtmoTheme {
-        AddExpenseScreen()
+        AddExpenseScreen(rememberNavController())
     }
 }

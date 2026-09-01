@@ -27,8 +27,6 @@ import br.com.atmo.ui.theme.components.AtmoBottomBar
 fun NavigationRoutes() {
     val navController = rememberNavController()
 
-    // e-mail centralizado: preenchido uma vez no login/cadastro,
-    // reaproveitado pelos cliques da bottom bar sem precisar reler da rota
     var userEmail by remember { mutableStateOf("") }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -88,7 +86,7 @@ fun NavigationRoutes() {
                 InsightsScreen()
             }
             composable(Destination.AddExpenseScreen.route) {
-                AddExpenseScreen()
+                AddExpenseScreen(navController)
             }
         }
     }

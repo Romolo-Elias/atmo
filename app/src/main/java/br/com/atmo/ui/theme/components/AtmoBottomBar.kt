@@ -64,7 +64,6 @@ fun AtmoBottomBar(
             )
         )
 
-        // Item de Adicionar com o símbolo "+" integrado no menu
         NavigationBarItem(
             icon = { Icon(Icons.Default.Add, contentDescription = "Adicionar") },
             label = { Text("Novo") },
