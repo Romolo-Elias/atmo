@@ -31,7 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import br.com.atmo.BuildConfig
 import br.com.atmo.data.AtmoDatabase
+import br.com.atmo.data.EmissionFactorSelector
+import br.com.atmo.data.EstimateRequest
+import br.com.atmo.data.MoneyParameters
+import br.com.atmo.data.RetrofitClient
+import br.com.atmo.data.categoriaParaBusca
 import br.com.atmo.model.Expense
 import br.com.atmo.repository.ExpenseRepository
 import br.com.atmo.ui.theme.AtmoCyan
@@ -157,13 +163,43 @@ fun AddExpenseScreen(
         Button(
             onClick = {
                 val valorConvertido = amount.replace(",", ".").toDoubleOrNull() ?: 0.0
+
                 scope.launch {
+                    val carbonValue = try {
+                        val termoBusca = categoriaParaBusca(category)
+                        val resultadoBusca = RetrofitClient.api.search(
+                            token = "Bearer ${BuildConfig.CLIMATIQ_API_KEY}",
+                            query = termoBusca
+                        )
+                        val activityId = resultadoBusca.results.firstOrNull()?.activity_id
+
+                        if (activityId != null) {
+                            val estimativa = RetrofitClient.api.estimate(
+                                token = "Bearer ${BuildConfig.CLIMATIQ_API_KEY}",
+                                request = EstimateRequest(
+                                    emission_factor = EmissionFactorSelector(activityId),
+                                    parameters = MoneyParameters(money = valorConvertido)
+                                )
+                            )
+                            estimativa.co2e
+                        } else {
+                            0.0
+                        }
+                    }  catch (e: retrofit2.HttpException) {
+                val corpoErro = e.response()?.errorBody()?.string()
+                android.util.Log.e("ClimatiqAPI", "Erro HTTP ${e.code()}: $corpoErro")
+                0.0
+            } catch (e: Exception) {
+                android.util.Log.e("ClimatiqAPI", "Erro ao chamar a API", e)
+                0.0
+            }
+
                     repository.insert(
                         Expense(
                             title = title,
                             category = category,
                             value = valorConvertido,
-                            carbonValue = 0.0
+                            carbonValue = carbonValue
                         )
                     )
                     navController.popBackStack()
