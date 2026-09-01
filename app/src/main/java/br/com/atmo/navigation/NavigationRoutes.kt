@@ -9,8 +9,12 @@ sealed class Destination(val route: String){
             return "dashboard/$email"
         }
     }
+    object ProfileScreen: Destination("profile/{email}"){
+        fun createRoute(email: String): String {
+            return "profile/$email"
+        }
+    }
     object InsightScreen: Destination("insight")
     object AddExpenseScreen: Destination("addExpense")
-    object ProfileScreen: Destination("profile")
 
 }
