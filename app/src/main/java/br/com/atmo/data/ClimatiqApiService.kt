@@ -12,6 +12,7 @@ interface ClimatiqApiService {
     suspend fun search(
         @Header("Authorization") token: String,
         @Query("query") query: String,
+        @Query("data_version") dataVersion: String = "^0",
         @Query("unit_type") unitType: String = "Money",
         @Query("access_type") accessType: String = "public",
         @Query("results_per_page") resultsPerPage: Int = 1

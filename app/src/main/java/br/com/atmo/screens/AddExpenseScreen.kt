@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.atmo.BuildConfig
@@ -39,11 +40,11 @@ import br.com.atmo.data.MoneyParameters
 import br.com.atmo.data.RetrofitClient
 import br.com.atmo.data.categoriaParaBusca
 import br.com.atmo.model.Expense
-import br.com.atmo.repository.ExpenseRepository
 import br.com.atmo.ui.theme.AtmoCyan
 import br.com.atmo.ui.theme.AtmoSurface
 import br.com.atmo.ui.theme.AtmoTextSecondary
 import br.com.atmo.ui.theme.AtmoTheme
+import br.com.atmo.viewmodel.ExpenseViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,7 +57,9 @@ fun AddExpenseScreen(
     var category by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-    val repository = remember { ExpenseRepository(AtmoDatabase.getInstance(context).expenseDao()) }
+    val viewModel: ExpenseViewModel = viewModel(
+        factory = ExpenseViewModel.Factory(AtmoDatabase.getInstance(context).expenseDao())
+    )
     val scope = rememberCoroutineScope()
 
     Column(
@@ -185,16 +188,12 @@ fun AddExpenseScreen(
                         } else {
                             0.0
                         }
-                    }  catch (e: retrofit2.HttpException) {
-                val corpoErro = e.response()?.errorBody()?.string()
-                android.util.Log.e("ClimatiqAPI", "Erro HTTP ${e.code()}: $corpoErro")
-                0.0
-            } catch (e: Exception) {
-                android.util.Log.e("ClimatiqAPI", "Erro ao chamar a API", e)
-                0.0
-            }
+                    } catch (e: Exception) {
+                        android.util.Log.e("ClimatiqAPI", "Erro ao chamar a API", e)
+                        0.0
+                    }
 
-                    repository.insert(
+                    viewModel.insert(
                         Expense(
                             title = title,
                             category = category,

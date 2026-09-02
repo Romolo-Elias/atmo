@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,26 +31,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.atmo.R
 import br.com.atmo.data.AtmoDatabase
-import br.com.atmo.repository.ExpenseRepository
 import br.com.atmo.ui.theme.AtmoTheme
 import br.com.atmo.ui.theme.components.AtmoCard
 import br.com.atmo.ui.theme.components.CategoryEmissionItem
 import br.com.atmo.ui.theme.components.ExpenseItem
+import br.com.atmo.viewmodel.ExpenseViewModel
 
 @Composable
 fun DashboardScreen(navController: NavHostController, email: String?, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val repository = remember { ExpenseRepository(AtmoDatabase.getInstance(context).expenseDao()) }
-    val expenses by repository.getAll().collectAsState(initial = emptyList())
+    val viewModel: ExpenseViewModel = viewModel(
+        factory = ExpenseViewModel.Factory(AtmoDatabase.getInstance(context).expenseDao())
+    )
 
-    val totalGasto = expenses.sumOf { it.value }
-    val totalCO2 = expenses.sumOf { it.carbonValue }
-    val emissoesPorCategoria = expenses.groupBy { it.category }
-        .mapValues { (_, lista) -> lista.sumOf { it.carbonValue } }
+    val expenses by viewModel.expenses.collectAsState()
+    val totalGasto by viewModel.totalGasto.collectAsState()
+    val totalCO2 by viewModel.totalCO2.collectAsState()
+    val emissoesPorCategoria by viewModel.emissoesPorCategoria.collectAsState()
 
     Column(
         modifier = modifier
@@ -94,24 +95,12 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
             AtmoCard(
                 modifier = Modifier.weight(1f)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "PEGADA CO₂",
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 11.sp
-                    )
-                    Text(
-                        text = "+20.7%",
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 11.sp
-                    )
-                }
+                Text(
+                    text = "PEGADA CO₂",
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 11.sp
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "%.1f kg".format(totalCO2),
@@ -127,28 +116,34 @@ fun DashboardScreen(navController: NavHostController, email: String?, modifier: 
             color = MaterialTheme.colorScheme.secondary,
             fontWeight = FontWeight.Medium
         )
+
+        fun calcularProgresso(valorCategoria: Double, total: Double): Float {
+            if (total <= 0.0) return 0f
+            return (valorCategoria / total).toFloat().coerceIn(0f, 1f)
+        }
+
         CategoryEmissionItem(
             title = "Transporte",
             value = "%.2f kg".format(emissoesPorCategoria["Transporte"] ?: 0.0),
-            progress = 0.2f,
+            progress = calcularProgresso(emissoesPorCategoria["Transporte"] ?: 0.0, totalCO2),
             icon = Icons.Default.DirectionsCar
         )
         CategoryEmissionItem(
             title = "Alimentação",
             value = "%.1f kg".format(emissoesPorCategoria["Alimentação"] ?: 0.0),
-            progress = 0.8f,
+            progress = calcularProgresso(emissoesPorCategoria["Alimentação"] ?: 0.0, totalCO2),
             icon = Icons.Default.ShoppingCart
         )
         CategoryEmissionItem(
             title = "Casa",
             value = "%.1f kg".format(emissoesPorCategoria["Casa"] ?: 0.0),
-            progress = 0.5f,
+            progress = calcularProgresso(emissoesPorCategoria["Casa"] ?: 0.0, totalCO2),
             icon = Icons.Default.House
         )
         CategoryEmissionItem(
             title = "Digital",
             value = "%.1f kg".format(emissoesPorCategoria["Digital"] ?: 0.0),
-            progress = 1f,
+            progress = calcularProgresso(emissoesPorCategoria["Digital"] ?: 0.0, totalCO2),
             icon = Icons.Default.Laptop
         )
 
